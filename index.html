@@ -1,0 +1,1191 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Daily Comercial — FINX Supervisor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --finx-yellow:     #FCD02B;
+    --finx-dark:       #142141;
+    --finx-teal:       #1B82B0;
+    --finx-dark-teal:  #115978;
+    --finx-bright:     #0065FF;
+    --finx-med:        #014EDC;
+
+    --bg:              var(--finx-dark);
+    --surface:         rgba(255, 255, 255, 0.05);
+    --surface-hover:   rgba(255, 255, 255, 0.08);
+    --border:          rgba(255, 255, 255, 0.1);
+    --border-hi:       rgba(255, 255, 255, 0.25);
+    --text:            #ffffff;
+    --muted:           rgba(255, 255, 255, 0.6);
+    --accent:          var(--finx-bright);
+    --accent-dim:      rgba(0, 101, 255, 0.15);
+    --accent-yellow:   var(--finx-yellow);
+    
+    --green:           #22c55e;
+    --green-dim:       rgba(34, 197, 94, 0.15);
+    --amber:           #f59e0b;
+    --amber-dim:       rgba(245, 158, 11, 0.15);
+    --red:             #ef4444;
+    --red-dim:         rgba(239, 68, 68, 0.15);
+    
+    --sans:            'Inter', sans-serif;
+    --radius:          16px;
+    --radius-sm:       10px;
+  }
+  
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  
+  body { 
+    background-color: var(--bg); color: var(--text); font-family: var(--sans); 
+    font-size: 14px; line-height: 1.6; min-height: 100vh; position: relative; overflow-x: hidden;
+  }
+
+  body::before, body::after {
+    content: ''; position: fixed; border-radius: 50%; filter: blur(80px); z-index: 0; pointer-events: none; opacity: 0.5;
+    will-change: transform;
+  }
+  body::before { top: -10%; left: -10%; width: 400px; height: 400px; background: rgba(0, 101, 255, 0.25); }
+  body::after { bottom: -10%; right: -10%; width: 500px; height: 500px; background: rgba(27, 130, 176, 0.18); }
+
+  .shell { position: relative; z-index: 1; max-width: 760px; margin: 0 auto; padding: 50px 20px 80px; }
+
+  @keyframes fadeInUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  .animate-in { animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .delay-1 { animation-delay: 0.08s; } .delay-2 { animation-delay: 0.16s; } 
+  .delay-3 { animation-delay: 0.24s; } .delay-4 { animation-delay: 0.32s; }
+
+  .header { text-align: center; margin-bottom: 40px; padding-bottom: 30px; border-bottom: 1px solid var(--border); }
+  .header-logo { height: 45px; margin-bottom: 24px; object-fit: contain; }
+  .header-tag { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; color: var(--accent-yellow); margin-bottom: 8px; }
+  .header h1 { font-size: 26px; font-weight: 700; letter-spacing: -.02em; color: #fff; margin-bottom: 4px; }
+  .header h2 { font-size: 16px; font-weight: 500; color: var(--finx-yellow); margin-bottom: 8px; }
+  .header-sub { font-size: 13px; color: var(--muted); font-weight: 400; }
+  
+  .meta-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; margin-bottom: 16px; position: relative; z-index: 20; }
+  .meta-row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 36px; align-items: start; position: relative; z-index: 10; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px; }
+  @media(max-width:650px){ .meta-row, .meta-row-2, .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; } }
+
+  .section { 
+    background: var(--surface); 
+    border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 24px; overflow: hidden; 
+    transition: border-color 0.25s ease, box-shadow 0.25s ease; box-shadow: 0 2px 16px rgba(0, 0, 0, 0.12);
+  }
+  .section-header { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--border); background: rgba(0,0,0,0.2); }
+  .section-num { font-size: 11px; font-weight: 700; color: var(--finx-dark); background: var(--accent-yellow); border-radius: 6px; padding: 3px 8px; flex-shrink: 0; }
+  .section-title { font-size: 14px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: #fff; }
+  .section-badge { margin-left: auto; font-size: 11px; font-weight: 500; color: var(--muted); background: rgba(255,255,255,.05); border: 1px solid var(--border); border-radius: 6px; padding: 3px 10px; }
+  .section-body { padding: 20px; }
+
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font-size: 12px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--muted); }
+  
+  .field input, .field textarea { 
+    background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--radius-sm); 
+    color: #fff; font-family: var(--sans); font-size: 14px; padding: 10px 14px; outline: none; transition: all .2s; width: 100%; box-sizing: border-box;
+  }
+  .field input:focus, .field textarea:focus { border-color: var(--accent); background: rgba(0, 101, 255, 0.05); box-shadow: 0 0 0 3px var(--accent-dim); }
+  .field input::placeholder, .field textarea::placeholder { color: var(--muted); opacity: .5; }
+  .field textarea { resize: none; min-height: 42px; overflow: hidden; }
+  .field.mono input { font-variant-numeric: tabular-nums; font-family: monospace; }
+  .field input[type="date"] { color-scheme: dark; cursor: pointer; }
+
+  .custom-select { position: relative; user-select: none; }
+  .select-selected { 
+    background: rgba(0, 0, 0, 0.2); border: 1px solid var(--border); border-radius: var(--radius-sm); 
+    padding: 10px 30px 10px 14px; cursor: pointer; color: #fff; transition: all .2s; font-size: 14px; 
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; position: relative; display: block;
+  }
+  .select-selected:after { 
+    content: ''; border: solid var(--muted); border-width: 0 2px 2px 0; display: inline-block; padding: 3px; 
+    transform: translateY(-50%) rotate(45deg); transition: transform 0.2s, border-color 0.2s; position: absolute; right: 14px; top: 45%; 
+  }
+  .select-selected.select-arrow-active { border-color: var(--accent); background: rgba(0, 101, 255, 0.05); box-shadow: 0 0 0 3px var(--accent-dim); }
+  .select-selected.select-arrow-active:after { transform: translateY(-30%) rotate(-135deg); border-color: var(--accent); }
+  
+  .select-items { 
+    position: absolute; background: rgba(20, 33, 65, 0.85); backdrop-filter: blur(24px) saturate(180%); 
+    -webkit-backdrop-filter: blur(24px) saturate(180%); border: 1px solid var(--border-hi); 
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6); border-radius: var(--radius-sm); 
+    top: 100%; left: 0; right: 0; z-index: 9999; margin-top: 8px; overflow: hidden; opacity: 0; 
+    transform: translateY(-10px); pointer-events: none; transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1); 
+  }
+  .select-items.select-show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .select-items div { padding: 12px 14px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); color: #fff; transition: all .2s; font-size: 14px; position: relative; }
+  .select-items div:hover { background: rgba(0, 101, 255, 0.2); color: var(--finx-bright); padding-left: 18px; }
+  .select-items div.multi-selected { background: rgba(0, 101, 255, 0.15); color: var(--finx-yellow); font-weight: 600; }
+  .select-items div.multi-selected::after { content: '✔'; position: absolute; right: 14px; color: var(--finx-yellow); }
+
+  .subgroup { background: rgba(0,0,0,.15); border: 1px solid var(--border); border-radius: 12px; padding: 16px; margin-top: 6px; contain: layout style; }
+  .subgroup-title { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; display: flex; align-items: center; gap: 10px; }
+  .subgroup-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+  .check-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; transition: all .2s; user-select: none; background: rgba(255,255,255,0.02); }
+  .check-item:hover { border-color: var(--border-hi); background: var(--surface-hover); }
+  .check-item input[type="checkbox"] { display: none; }
+  .check-box { width: 20px; height: 20px; border-radius: 6px; flex-shrink: 0; border: 2px solid var(--muted); background: transparent; display: flex; align-items: center; justify-content: center; transition: all .2s; }
+  .check-box svg { display: none; }
+  .check-item input[type="checkbox"]:checked ~ .check-box { background: var(--accent); border-color: var(--accent); }
+  .check-item input[type="checkbox"]:checked ~ .check-box svg { display: block; stroke-width: 3; }
+  .check-label { font-size: 14px; color: var(--text); transition: color .2s; font-weight: 500; }
+  .check-item input[type="checkbox"]:checked ~ .check-label { color: #fff; }
+
+  .diag-wrap { margin-bottom: 24px; }
+  .diag-header-title { font-size: 15px; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .diag-header-desc { font-size: 13px; color: var(--finx-yellow); margin-bottom: 12px; font-weight: 500; }
+  .diag-item { margin-bottom: 12px; }
+  .diag-desc { font-size: 12px; color: var(--muted); display: block; margin-top: 2px; font-weight: 400; }
+  .closers-list { margin-top: 8px; margin-left: 32px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: var(--radius-sm); border: 1px solid var(--border); display: none; }
+  .closers-list.show { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; animation: fadeInUp 0.3s ease; }
+  @media(max-width:650px){ .closers-list.show { grid-template-columns: 1fr; } }
+  .closer-check { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); cursor: pointer; }
+  .closer-check input { accent-color: var(--accent); width: 16px; height: 16px; cursor: pointer; }
+  .closer-check:hover { color: #fff; }
+
+  .gaveta { border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 12px; background: rgba(0,0,0,0.2); transition: all 0.3s; }
+  .gaveta.open { border-color: var(--border-hi); background: rgba(255,255,255,0.03); }
+  .gaveta-header { padding: 16px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: space-between; user-select: none; color: #fff; }
+  .gaveta-header::after { content: '+'; font-size: 20px; font-weight: 300; transition: transform .3s; color: var(--muted); }
+  .gaveta.open .gaveta-header::after { transform: rotate(45deg); color: var(--accent); }
+  .gaveta-body { display: none; padding: 0 16px 16px; border-top: 1px solid var(--border); }
+  .gaveta.open .gaveta-body { display: block; animation: fadeInUp .3s ease; }
+  
+  .acao-item { padding: 16px 0; border-bottom: 1px dashed var(--border); }
+  .acao-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .acao-fields { display: none; margin-top: 16px; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+  .acao-fields.open { display: grid; animation: fadeInUp 0.3s ease; }
+  @media(max-width:650px){ .acao-fields.open { grid-template-columns: 1fr; } }
+
+  .farol-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; align-items: stretch; }
+  .farol-grid > div { display: flex; }
+  @media(max-width:650px){ .farol-grid { grid-template-columns: 1fr; } }
+  .farol-option { display: none; }
+  .farol-label { width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: 12px; padding: 20px 14px; border: 2px solid var(--border); border-radius: var(--radius); cursor: pointer; transition: all .3s; text-align: center; background: rgba(0,0,0,0.2); }
+  .farol-label:hover { border-color: var(--border-hi); transform: translateY(-3px); background: var(--surface-hover); }
+  .farol-circle { width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0; transition: all 0.3s; margin-bottom: 4px; }
+  .farol-option[value="verde"]:checked    + .farol-label { border-color: var(--green); background: var(--green-dim); }
+  .farol-option[value="amarelo"]:checked  + .farol-label { border-color: var(--amber); background: var(--amber-dim); }
+  .farol-option[value="vermelho"]:checked + .farol-label { border-color: var(--red);   background: var(--red-dim); }
+  .farol-option[value="verde"]:checked    + .farol-label .farol-circle { box-shadow: 0 0 20px rgba(34,197,94,.6); transform: scale(1.1); }
+  .farol-option[value="amarelo"]:checked  + .farol-label .farol-circle { box-shadow: 0 0 20px rgba(245,158,11,.6); transform: scale(1.1); }
+  .farol-option[value="vermelho"]:checked + .farol-label .farol-circle { box-shadow: 0 0 20px rgba(239,68,68,.6); transform: scale(1.1); }
+  .farol-name { font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 2px;}
+  .farol-desc { font-size: 12px; color: var(--muted); line-height: 1.5; font-weight: 400; }
+
+  .submit-wrap { display: flex; gap: 16px; justify-content: flex-end; margin-top: 40px; }
+  .btn-reset, .btn-test, .btn-submit { display: flex; align-items: center; gap: 8px; border-radius: var(--radius-sm); font-family: var(--sans); cursor: pointer; transition: all .2s; }
+  .btn-reset { padding: 12px 24px; border: 1px solid var(--border); background: rgba(255,255,255,0.05); color: #fff; font-size: 14px; font-weight: 500; backdrop-filter: blur(5px); }
+  .btn-reset:hover { border-color: var(--border-hi); background: rgba(255,255,255,0.1); }
+  .btn-test { padding: 12px 24px; border: 1px solid rgba(252,208,43,.35); background: rgba(252,208,43,.08); color: var(--finx-yellow); font-size: 14px; font-weight: 600; }
+  .btn-test:hover { background: rgba(252,208,43,.15); border-color: rgba(252,208,43,.6); }
+  .btn-submit { padding: 12px 32px; border: none; background: var(--accent); color: #fff; font-size: 15px; font-weight: 700; box-shadow: 0 4px 15px var(--accent-dim); }
+  .btn-submit:hover { background: var(--finx-med); box-shadow: 0 6px 20px rgba(0, 101, 255, 0.3); transform: translateY(-2px); }
+  .btn-submit:active { transform: translateY(0); }
+  button:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  .progress-bar-wrap { background: rgba(255,255,255,0.1); border-radius: 99px; height: 6px; overflow: hidden; margin: 24px 0 8px; }
+  .progress-bar { height: 100%; background: linear-gradient(90deg, var(--finx-bright), var(--finx-yellow)); border-radius: 99px; transition: width .5s cubic-bezier(0.16, 1, 0.3, 1); }
+  .progress-label { font-size: 12px; font-weight: 600; color: var(--muted); margin-bottom: 32px; text-align: right; }
+  .toast { position: fixed; bottom: 32px; right: 32px; border-radius: 12px; padding: 16px 24px; font-size: 14px; font-weight: 600; opacity: 0; transform: translateY(16px); transition: all .4s cubic-bezier(0.16, 1, 0.3, 1); pointer-events: none; z-index: 999; max-width: 340px; border: 1px solid; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  .modal-backdrop { position: fixed; inset: 0; z-index: 1100; background: rgba(10, 16, 36, 0.7); backdrop-filter: blur(8px); display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .25s ease; }
+  .modal-backdrop.active { opacity: 1; pointer-events: all; }
+  .modal-box { background: #101e3a; border: 1px solid var(--border-hi); border-radius: 18px; padding: 28px 32px; max-width: 380px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,.5); transform: translateY(12px) scale(.97); transition: transform .25s cubic-bezier(0.16,1,0.3,1); }
+  .modal-backdrop.active .modal-box { transform: translateY(0) scale(1); }
+  .modal-icon { font-size: 28px; margin-bottom: 12px; text-align: center; }
+  .modal-title { font-size: 16px; font-weight: 700; color: #fff; margin-bottom: 8px; text-align: center; line-height: 1.4; }
+  .modal-sub   { font-size: 13px; color: var(--muted); text-align: center; line-height: 1.6; margin-bottom: 24px; }
+  .modal-input-wrap { margin-bottom: 20px; }
+  .modal-input-wrap label { font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+  .modal-input { width: 100%; background: rgba(0,0,0,.3); border: 1px solid var(--border); border-radius: var(--radius-sm); color: #fff; font-family: var(--sans); font-size: 15px; padding: 10px 14px; outline: none; transition: all .2s; letter-spacing: .1em; text-align: center; }
+  .modal-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+  .modal-input.error { border-color: var(--red); box-shadow: 0 0 0 3px var(--red-dim); animation: shake .35s ease; }
+  .modal-error-msg { font-size: 12px; color: var(--red); margin-top: 6px; text-align: center; min-height: 16px; }
+  .modal-actions { display: flex; gap: 10px; }
+  .modal-btn { flex: 1; padding: 11px 16px; border-radius: var(--radius-sm); font-family: var(--sans); font-size: 14px; font-weight: 600; cursor: pointer; transition: all .2s; border: none; }
+  .modal-btn-cancel { background: rgba(255,255,255,.06); color: var(--muted); border: 1px solid var(--border); }
+  .modal-btn-cancel:hover { background: rgba(255,255,255,.12); color: #fff; }
+  .modal-btn-confirm { background: var(--accent); color: #fff; }
+  .modal-btn-confirm:hover { background: var(--finx-med); }
+  .modal-btn-confirm.yellow { background: var(--finx-yellow); color: var(--finx-dark); }
+  .modal-btn-confirm.yellow:hover { background: #e8be10; }
+
+  @keyframes shake {
+    0%,100%{ transform: translateX(0); }
+    20%    { transform: translateX(-6px); }
+    40%    { transform: translateX(6px); }
+    60%    { transform: translateX(-4px); }
+    80%    { transform: translateX(4px); }
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-overlay { position: fixed; inset: 0; z-index: 1000; background: rgba(20, 33, 65, 0.75); backdrop-filter: blur(6px); display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: opacity .3s ease; }
+  .loading-overlay.active { opacity: 1; pointer-events: all; }
+  .loading-spinner { width: 52px; height: 52px; border-radius: 50%; border: 3px solid rgba(255,255,255,.1); border-top-color: var(--accent); border-right-color: var(--finx-yellow); animation: spin 0.85s linear infinite; margin-bottom: 20px; }
+  .loading-text { font-size: 15px; font-weight: 600; color: #fff; letter-spacing: .02em; }
+  .loading-sub  { font-size: 13px; color: var(--muted); margin-top: 6px; }
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="header animate-in">
+    <img src="https://github.com/user-attachments/assets/41e98109-418f-40d4-9c27-75a357726e0b" alt="FINX" class="header-logo" loading="eager" decoding="async">
+    <div class="header-tag">Daily Comercial</div>
+    <h1>Framework do Supervisor</h1>
+    <h2>Assinatura de veículos • SDR</h2>
+    <div class="header-sub">Duração: 10-15 min &nbsp;·&nbsp; Foco: Ação, Rastreamento e Viabilidade</div>
+  </div>
+
+  <div class="progress-bar-wrap animate-in"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label animate-in"><span id="progressPct">0%</span> preenchido</div>
+
+  <form id="dailyForm" novalidate>
+    <div class="meta-row animate-in delay-1">
+      <div class="field"><label>Data</label><input type="date" id="data" name="data" class="track-single" required></div>
+      <div class="field">
+        <label>Supervisor</label>
+        <div class="custom-select" id="selectSupervisor">
+          <div class="select-selected" id="displaySupervisor">Selecione...</div>
+          <div class="select-items">
+            <div data-value="Aline Oliveira" data-email="aline.oliveira@finxcapital.com.br">Aline Oliveira</div>
+          </div>
+          <input type="hidden" name="supervisor" id="inputSupervisor" class="track-single" required>
+        </div>
+      </div>
+      <div class="field"><label>E-mail do supervisor</label><input type="email" name="emailSupervisor" id="inputEmailSupervisor" class="track-single" placeholder="Preenchido automaticamente..." readonly style="color:var(--finx-yellow)"></div>
+    </div>
+    
+    <div class="meta-row-2 animate-in delay-1">
+      <div class="field">
+        <label>Equipe</label>
+        <div class="custom-select" id="selectEquipe">
+          <div class="select-selected" id="displayEquipe">Selecione...</div>
+          <div class="select-items">
+            <div data-value="SDR">SDR</div>
+          </div>
+          <input type="hidden" name="equipe" id="inputEquipe" class="track-single" required>
+        </div>
+      </div>
+      <div class="field">
+        <label>E-mail Alternativo (Opcional)</label>
+        <label class="check-item" style="margin: 0; height: 44px;">
+          <input type="checkbox" id="chkOutroGerente">
+          <div class="check-box"><svg width="12" height="9" fill="none" stroke="#fff" viewBox="0 0 11 9"><polyline points="1 4.5 4 7.5 10 1"/></svg></div>
+          <span class="check-label" style="font-size: 13px;">Enviar para outro gerente?</span>
+        </label>
+        <input type="email" id="inputEmailGerente" name="emailGerente" placeholder="Digite o novo e-mail" style="display: none; margin-top: 8px;">
+      </div>
+    </div>
+
+    <div class="section animate-in delay-2">
+      <div class="section-header">
+        <span class="section-num">01</span><span class="section-title">Indicadores do Dia</span><span class="section-badge">Quantitativo</span>
+      </div>
+      <div class="section-body">
+        
+        <div class="subgroup">
+          <div class="subgroup-title">1.1 Meta Recalculada</div>
+          <div class="grid-4">
+            <div class="field mono"><label>Pedido</label><input type="text" name="metaRecalcPedido" id="metaRecalcPedido" class="track-single" placeholder="0" oninput="maskInt(this)"></div>
+            <div class="field mono"><label>Venda</label><input type="text" name="metaRecalcVenda" id="metaRecalcVenda" class="track-single" placeholder="0" oninput="maskInt(this)"></div>
+            <div class="field mono"><label>Meta Mês (Pedido)</label><input type="text" name="metaMesPedido" id="metaMesPedido" class="track-single" placeholder="0" oninput="maskInt(this)"></div>
+            <div class="field mono"><label>Meta Mês (Venda)</label><input type="text" name="metaMesVenda" id="metaMesVenda" class="track-single" placeholder="0" oninput="maskInt(this)"></div>
+          </div>
+        </div>
+
+        <div class="subgroup" style="margin-top:16px;">
+          <div class="subgroup-title">1.2 Déficit do Mês</div>
+          <div class="grid-2">
+            <div class="field mono"><label>Pedido</label><input type="text" name="deficitPedido" id="deficitPedido" class="track-single" placeholder="0" oninput="maskInt(this)"></div>
+            <div class="field mono"><label>Venda</label><input type="text" name="deficitVenda" id="deficitVenda" class="track-single" placeholder="0" oninput="maskInt(this)"></div>
+          </div>
+        </div>
+        
+        <div class="grid-2" style="margin-top:16px; gap:16px;">
+          <div class="subgroup" style="margin-top:0;">
+            <div class="subgroup-title">1.3 Total de Indicações</div>
+            <div class="field mono"><label>Total</label><input type="text" name="totalIndicacoes" id="totalIndicacoes" class="track-single" placeholder="0" oninput="maskInt(this)"></div>
+          </div>
+          
+          <div class="subgroup" style="margin-top:0;">
+            <div class="subgroup-title">1.4 Ligações Produtivas</div>
+            <div class="field mono"><label>Volume</label><input type="text" name="ligacoesProdutivas" id="ligacoesProdutivas" class="track-single" placeholder="0" oninput="maskInt(this)"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section animate-in delay-3">
+      <div class="section-header">
+        <span class="section-num">02</span><span class="section-title">Diagnóstico</span><span class="section-badge">O que está travando?</span>
+      </div>
+      <div class="section-body" id="diagnosticoContainer">
+      </div>
+    </div>
+
+    <div class="section animate-in delay-3">
+      <div class="section-header">
+        <span class="section-num">03</span><span class="section-title">Plano de Ação &amp; Rastreamento</span><span class="section-badge">Gavetas de Ação</span>
+      </div>
+      <div class="section-body" id="acoesContainer">
+      </div>
+    </div>
+
+    <div class="section animate-in delay-4">
+      <div class="section-header">
+        <span class="section-num">04</span><span class="section-title">Farol de Confiança</span><span class="section-badge">Viabilidade da meta</span>
+      </div>
+      <div class="section-body">
+        <div class="farol-grid">
+          <div><input class="farol-option track-single" type="radio" name="farol" id="farolVermelho" value="vermelho"><label class="farol-label" for="farolVermelho"><div class="farol-circle" style="background:var(--red)"></div><div class="farol-name" style="color:var(--red)">Vermelho</div><div class="farol-desc">Impossível - sem chances tangíveis.</div></label></div>
+          <div><input class="farol-option track-single" type="radio" name="farol" id="farolAmarelo" value="amarelo"><label class="farol-label" for="farolAmarelo"><div class="farol-circle" style="background:var(--amber)"></div><div class="farol-name" style="color:var(--amber)">Amarelo</div><div class="farol-desc">Possível - há caminho, mas incerto.</div></label></div>
+          <div><input class="farol-option track-single" type="radio" name="farol" id="farolVerde" value="verde"><label class="farol-label" for="farolVerde"><div class="farol-circle" style="background:var(--green)"></div><div class="farol-name" style="color:var(--green)">Verde</div><div class="farol-desc">Provável - superaremos a meta.</div></label></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="submit-wrap animate-in delay-4">
+      <button type="button" class="btn-reset" id="btnReset" onclick="resetForm()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"></path></svg> Limpar formulário</button>
+      <button type="button" class="btn-test" id="btnTeste" onclick="abrirModalTeste()"><svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg> Enviar Teste</button>
+      <button type="button" class="btn-submit" id="btnPrepararEnvio"><svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> Enviar Daily</button>
+    </div>
+  </form>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text" id="loadingText">Enviando Daily...</div>
+  <div class="loading-sub" id="loadingSub">Aguarde, isso pode levar alguns segundos</div>
+</div>
+
+<div class="modal-backdrop" id="modalConfirmarEnvio">
+  <div class="modal-box">
+    <div class="modal-icon">📤</div>
+    <div class="modal-title">Confirmar Envio</div>
+    <div class="modal-sub">Você revisou todas as informações e deseja enviar o Daily para a planilha e e-mails gerenciais?</div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn modal-btn-cancel" id="btnVoltarEnvio">Voltar para edição</button>
+      <button type="button" class="modal-btn modal-btn-confirm" id="btnConfirmarEnvioReal">Sim, Enviar Daily</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalTeste">
+  <div class="modal-box">
+    <div class="modal-icon">&#x1F9EA;</div>
+    <div class="modal-title">Envio de Teste</div>
+    <div class="modal-sub">O e-mail será enviado <strong>somente</strong> para <strong style="color:#fff">lucca.moraes@finxcapital.com.br</strong>.<br>A planilha <u>não</u> será alterada.</div>
+    <div class="modal-input-wrap">
+      <label>Senha de confirmação</label>
+      <input class="modal-input" type="password" id="inputSenhaTeste" placeholder="••••" maxlength="20" autocomplete="off">
+      <div class="modal-error-msg" id="erroSenhaTeste"></div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn modal-btn-cancel" id="btnCancelarTeste">Cancelar</button>
+      <button type="button" class="modal-btn modal-btn-confirm yellow" id="btnConfirmarTeste">Enviar Teste</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop" id="modalDuplicado">
+  <div class="modal-box">
+    <div class="modal-icon">&#x26A0;&#xFE0F;</div>
+    <div class="modal-title" id="modalDuplicadoTitulo">Você já enviou um Daily hoje</div>
+    <div class="modal-sub" id="modalDuplicadoSub">Deseja enviar novamente mesmo assim?</div>
+    <div class="modal-actions">
+      <button type="button" class="modal-btn modal-btn-cancel" id="btnCancelarDuplicado">Cancelar</button>
+      <button type="button" class="modal-btn modal-btn-confirm" id="btnConfirmarDuplicado">Enviar mesmo assim</button>
+    </div>
+  </div>
+</div>
+
+<script>
+function maskMoeda(el) {
+  let v = el.value.replace(/\D/g, '');
+  if (!v) { el.value = ''; return; }
+  v = (parseInt(v, 10) / 100).toFixed(2);
+  el.value = 'R$ ' + v.replace('.', ',').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1.');
+}
+
+function maskPct(el) {
+  let v = el.value.replace(/[^\d,]/g, '');
+  
+  const partes = v.split(',');
+  if (partes.length > 2) {
+    v = partes[0] + ',' + partes.slice(1).join('');
+  }
+
+  if (!v) { 
+    el.value = ''; 
+    return; 
+  }
+
+  el.value = v + '%';
+
+  const pos = el.value.length - 1;
+  el.setSelectionRange(pos, pos);
+}
+
+function maskInt(el) {
+  el.value = el.value.replace(/\D/g, '');
+}
+
+const CLOSERS = {
+  "Aline Oliveira": ["Dainel Grola", "Luis Junior", "Pâmela Araújo", "Priscylla Silva"]
+};
+
+const DIAG_CONFIG = [
+  { id: 'ativ', title: 'Atividade / Esforço', desc: 'A pessoa está fazendo o trabalho necessário, em quantidade suficiente, com intensidade adequada?', checks: [
+    { id: 'diag_ativ_cob', label: 'Cobertura das oportunidades', desc: 'O vendedor está realmente trabalhando a carteira que recebe?' },
+    { id: 'diag_ativ_int', label: 'Intensidade de contato', desc: 'O vendedor está gerando o número de tentativas que o funil exige?' },
+    { id: 'diag_ativ_per', label: 'Persistência comercial', desc: 'A venda está sendo abandonada cedo demais?' },
+    { id: 'diag_ativ_vel', label: 'Velocidade e prontidão', desc: 'O vendedor ataca a oportunidade enquanto ela está quente?' }
+  ]},
+  { id: 'conv', title: 'Conversão / Efetividade', desc: 'O esforço está gerando avanço real ou apenas movimento vazio?', checks: [
+    { id: 'diag_conv_cap', label: 'Capacidade de capturar o cliente', desc: 'A tentativa de contato vira conversa real?' },
+    { id: 'diag_conv_ent', label: 'Entrada da conversa', desc: 'O vendedor gera confiança ou parece um robô lendo script?' },
+    { id: 'diag_conv_dia', label: 'Capacidade de entender o cliente', desc: 'O vendedor faz diagnóstico ou apenas empurra produto?' },
+    { id: 'diag_conv_enf', label: 'Capacidade de enfrentar resistência', desc: 'O vendedor recua no primeiro "não" ou sabe contornar?' },
+    { id: 'diag_conv_and', label: 'Capacidade de fazer a venda andar', desc: 'O vendedor tem comando sobre o processo ou é refém do cliente?' },
+    { id: 'diag_conv_tra', label: 'Transformação de esforço em venda', desc: 'O vendedor consegue transformar uma boa conversa em dinheiro na mesa?' }
+  ]},
+  { id: 'proc', title: 'Processo / Disciplina', desc: 'O vendedor faz o básico bem feito e mantém a operação organizada?', checks: [
+    { id: 'diag_proc_gov', label: 'Governança operacional', desc: 'O CRM reflete a realidade ou é cemitério de dados?' },
+    { id: 'diag_proc_cla', label: 'Clareza da carteira', desc: 'O vendedor sabe exatamente onde está cada negócio?' },
+    { id: 'diag_proc_con', label: 'Consistência operacional', desc: 'O vendedor tem uma rotina de sucesso ou trabalha por espasmos?' },
+    { id: 'diag_proc_res', label: 'Respeito ao modelo de operação', desc: 'O vendedor joga o jogo do time ou inventa as próprias regras?' }
+  ]},
+  { id: 'comp', title: 'Comportamento / Mentalidade', desc: 'A postura da pessoa sustenta a performance ou sabota o ambiente?', checks: [
+    { id: 'diag_comp_mot', label: 'Motor interno (energia)', desc: 'O vendedor tem "fome" ou está apenas cumprindo a tabela?' },
+    { id: 'diag_comp_niv', label: 'Nível de responsabilidade (ownership)', desc: 'O vendedor assume a culpa ou terceiriza o fracasso?' },
+    { id: 'diag_comp_tre', label: 'Capacidade de ser treinado', desc: 'O vendedor aceita correção ou sempre tem uma desculpa pronta?' },
+    { id: 'diag_comp_pre', label: 'Constância sob pressão', desc: 'O vendedor desaba no primeiro "não" ou continua operando?' }
+  ]}
+];
+
+const ACOES_CONFIG = [
+  { id: 'ativ', title: 'Atividade / Esforço', checks: [
+    { id: 'acao_ativ_met', label: 'Estabelecer meta mínima diária inegociável' },
+    { id: 'acao_ativ_tra', label: 'Tracking de hora em hora' }
+  ]},
+  { id: 'conv', title: 'Conversão / Efetividade', checks: [
+    { id: 'acao_conv_rol', label: 'Roleplay intensivo' },
+    { id: 'acao_conv_ouv', label: 'Ouvir ligações juntos' },
+    { id: 'acao_conv_ree', label: 'Reescrever script de abordagem' }
+  ]},
+  { id: 'proc', title: 'Processo / Disciplina', checks: [
+    { id: 'acao_proc_che', label: 'Checklist obrigatório diário' },
+    { id: 'acao_proc_rot', label: 'Rotina supervisionada de perto' },
+    { id: 'acao_proc_rev', label: 'Revisão de pipeline 1:1 semanal' }
+  ]},
+  { id: 'comp', title: 'Comportamento / Mentalidade', checks: [
+    { id: 'acao_comp_fee', label: 'Feedback duro e direto (1:1)' },
+    { id: 'acao_comp_pip', label: 'Plano de recuperação comportamental (PIP)' },
+    { id: 'acao_comp_pre', label: 'Preparação para desligamento se não houver mudança' }
+  ]}
+];
+
+function renderizarDiagnostico() {
+  const container = document.getElementById('diagnosticoContainer');
+  let html = '';
+  DIAG_CONFIG.forEach(bloco => {
+    html += `<div class="diag-wrap">
+      <div class="diag-header-title">${bloco.title}</div>
+      <div class="diag-header-desc">${bloco.desc}</div>
+      <div class="subgroup">`;
+    bloco.checks.forEach(check => {
+      html += `
+        <div class="diag-item">
+          <label class="check-item">
+            <input type="checkbox" id="chk_${check.id}" name="chk_${check.id}" value="Sim" onchange="toggleClosers('${check.id}', this.checked)">
+            <div class="check-box"><svg width="12" height="9" fill="none" stroke="#fff" viewBox="0 0 11 9"><polyline points="1 4.5 4 7.5 10 1"/></svg></div>
+            <div style="flex:1">
+              <span class="check-label">${check.label}</span>
+              <span class="diag-desc">${check.desc}</span>
+            </div>
+          </label>
+          <div class="closers-list" id="closers_${check.id}"></div>
+        </div>`;
+    });
+    html += `</div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+function renderizarAcoes() {
+  const container = document.getElementById('acoesContainer');
+  let html = '';
+  ACOES_CONFIG.forEach(gaveta => {
+    html += `<div class="gaveta" id="gaveta_${gaveta.id}">
+      <div class="gaveta-header" onclick="document.getElementById('gaveta_${gaveta.id}').classList.toggle('open')">${gaveta.title}</div>
+      <div class="gaveta-body">`;
+    gaveta.checks.forEach(check => {
+      html += `
+        <div class="acao-item">
+          <label class="check-item" style="border:none; background:transparent; padding:0;">
+            <input type="checkbox" id="chk_${check.id}" name="chk_${check.id}" value="Sim" onchange="document.getElementById('fields_${check.id}').classList.toggle('open', this.checked); calcProgress();">
+            <div class="check-box"><svg width="12" height="9" fill="none" stroke="#fff" viewBox="0 0 11 9"><polyline points="1 4.5 4 7.5 10 1"/></svg></div>
+            <span class="check-label">${check.label}</span>
+          </label>
+          <div class="acao-fields" id="fields_${check.id}">
+            <div class="field"><label>Detalhe</label><textarea id="${check.id}_detalhe" name="${check.id}_detalhe" placeholder="O que será feito..." rows="1"></textarea></div>
+            <div class="field"><label>Resultado esperado</label><input type="text" id="${check.id}_resultado" name="${check.id}_resultado" placeholder="Ex: +15% conversão"></div>
+            <div class="field"><label>Prazo</label><input type="date" id="${check.id}_prazo" name="${check.id}_prazo"></div>
+          </div>
+        </div>`;
+    });
+    html += `</div></div>`;
+  });
+  container.innerHTML = html;
+}
+
+renderizarDiagnostico();
+renderizarAcoes();
+
+function atualizarListasClosers() {
+  const supervisor = document.getElementById('inputSupervisor').value;
+  const closers = CLOSERS[supervisor] || [];
+  
+  DIAG_CONFIG.forEach(bloco => {
+    bloco.checks.forEach(check => {
+      const divClosers = document.getElementById('closers_' + check.id);
+      divClosers.innerHTML = ''; 
+      if(closers.length > 0) {
+        closers.forEach(nome => {
+          divClosers.innerHTML += `<label class="closer-check"><input type="checkbox" name="closers_${check.id}" value="${nome}"> ${nome}</label>`;
+        });
+      }
+    });
+  });
+}
+
+function toggleClosers(checkId, isChecked) {
+  const div = document.getElementById('closers_' + checkId);
+  if(isChecked) {
+    if(!document.getElementById('inputSupervisor').value) {
+      showToast('⚠️ Selecione o Supervisor primeiro.', true);
+      document.getElementById('chk_' + checkId).checked = false;
+      return;
+    }
+    div.classList.add('show');
+  } else {
+    div.classList.remove('show');
+    div.querySelectorAll('input').forEach(i => i.checked = false);
+  }
+  calcProgress();
+}
+
+function setupCustomSelect(containerId, inputId, onSelectCallback) {
+  const container = document.getElementById(containerId);
+  const selected = container.querySelector('.select-selected');
+  const items = container.querySelector('.select-items');
+  const hiddenInput = document.getElementById(inputId);
+
+  selected.addEventListener('click', function(e) {
+    e.stopPropagation();
+    closeAllSelect(this);
+    items.classList.toggle('select-show');
+    this.classList.toggle('select-arrow-active');
+  });
+
+  const options = items.querySelectorAll('div');
+  options.forEach(opt => {
+    opt.addEventListener('click', function(e) {
+      e.stopPropagation();
+      selected.innerHTML = this.innerHTML;
+      hiddenInput.value = this.dataset.value;
+      if (onSelectCallback) onSelectCallback(this);
+      items.classList.remove('select-show');
+      selected.classList.remove('select-arrow-active');
+      hiddenInput.dispatchEvent(new Event('change'));
+    });
+  });
+}
+
+function setupMultiSelect(containerId, inputId) {
+  const container = document.getElementById(containerId);
+  const selected = container.querySelector('.select-selected');
+  const items = container.querySelector('.select-items');
+  const hiddenInput = document.getElementById(inputId);
+  const options = items.querySelectorAll('div');
+
+  selected.addEventListener('click', function(e) {
+    e.stopPropagation();
+    closeAllSelect(this);
+    items.classList.toggle('select-show');
+    this.classList.toggle('select-arrow-active');
+  });
+
+  options.forEach(opt => {
+    opt.addEventListener('click', function(e) {
+      e.stopPropagation();
+      this.classList.toggle('multi-selected');
+
+      const selectedDivs = items.querySelectorAll('div.multi-selected');
+      const vals = [];
+      const texts = [];
+      
+      selectedDivs.forEach(d => {
+        vals.push(d.dataset.value);
+        texts.push(d.innerText);
+      });
+
+      if (vals.length === 0) {
+        selected.innerText = 'Selecione...';
+        hiddenInput.value = '';
+      } else {
+        selected.innerText = texts.join(', ');
+        hiddenInput.value = vals.join(', ');
+      }
+      hiddenInput.dispatchEvent(new Event('change'));
+    });
+  });
+}
+
+function closeAllSelect(elmnt) {
+  const items = document.querySelectorAll('.select-items');
+  const selecteds = document.querySelectorAll('.select-selected');
+  selecteds.forEach(s => { if (s !== elmnt) s.classList.remove('select-arrow-active'); });
+  items.forEach(i => { if (elmnt !== i.previousElementSibling) i.classList.remove('select-show'); });
+}
+
+document.addEventListener("click", function(e) {
+  if (!e.target.closest('.custom-select')) closeAllSelect(null);
+});
+
+setupCustomSelect('selectSupervisor', 'inputSupervisor', (selectedOpt) => {
+  const emailField = document.getElementById('inputEmailSupervisor');
+  emailField.value = selectedOpt.dataset.email;
+  atualizarListasClosers();
+  emailField.dispatchEvent(new Event('change'));
+});
+setupMultiSelect('selectEquipe', 'inputEquipe');
+
+function autoResize(textarea) {
+  requestAnimationFrame(() => {
+    textarea.style.height = 'auto';
+    textarea.style.height = textarea.scrollHeight + 'px';
+  });
+}
+
+document.getElementById('chkOutroGerente').addEventListener('change', function(e) {
+  const inputEmail = document.getElementById('inputEmailGerente');
+  if (e.target.checked) {
+    inputEmail.style.display = 'block';
+    inputEmail.required = true;
+    inputEmail.focus();
+  } else {
+    inputEmail.style.display = 'none';
+    inputEmail.required = false;
+    inputEmail.value = '';
+  }
+});
+
+function calcProgress() {
+  const singles = document.querySelectorAll('.track-single');
+  let totalReq = singles.length;
+  let filled = 0;
+
+  singles.forEach(el => {
+    if(el.type === 'radio') { if(el.checked) filled++; return; }
+    if (el.value.trim() !== '') filled++;
+  });
+
+  DIAG_CONFIG.forEach(b => b.checks.forEach(c => {
+    if(document.getElementById('chk_' + c.id).checked) filled++;
+    totalReq++;
+  }));
+
+  ACOES_CONFIG.forEach(g => g.checks.forEach(c => {
+    if(document.getElementById('chk_' + c.id).checked) {
+      filled++;
+      const inputs = document.querySelectorAll(`#fields_${c.id} input, #fields_${c.id} textarea`);
+      totalReq += inputs.length;
+      inputs.forEach(i => { if(i.value.trim() !== '') filled++; });
+    }
+    totalReq++;
+  }));
+
+  const pct = totalReq === 0 ? 0 : Math.min(100, Math.round((filled / totalReq) * 100));
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressPct').textContent = pct + '%';
+}
+
+const DRAFT_KEY = 'finx_daily_draft_v2';
+let _isLoadingDraft = false;
+
+function saveDraft() {
+  const d = {};
+  document.getElementById('dailyForm').querySelectorAll('input, textarea').forEach(el => {
+    const key = el.id || el.name;
+    if (!key) return; 
+    if (el.type === 'checkbox' || el.type === 'radio') {
+      d[key] = el.checked;
+    } else {
+      d[key] = el.value;
+    }
+  });
+  localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+}
+
+function loadDraft() {
+  const saved = localStorage.getItem(DRAFT_KEY);
+  if (!saved) { calcProgress(); return; }
+  try {
+    const d = JSON.parse(saved);
+    _isLoadingDraft = true;
+    
+    const supVal = d['inputSupervisor'];
+    if (supVal) {
+      const opt = document.querySelector(`#selectSupervisor .select-items div[data-value="${supVal}"]`);
+      if (opt) {
+        document.getElementById('displaySupervisor').textContent = opt.textContent;
+        document.getElementById('inputSupervisor').value = supVal;
+        atualizarListasClosers();
+      }
+    }
+
+    Object.keys(d).forEach(key => {
+      const el = document.getElementById(key) || document.getElementsByName(key)[0];
+      if (!el) return;
+
+      if (el.type === 'checkbox' || el.type === 'radio') {
+        el.checked = d[key];
+        if(key.startsWith('chk_diag_')) toggleClosers(key.replace('chk_', ''), d[key]);
+        if(key.startsWith('chk_acao_')) {
+           const fid = 'fields_' + key.replace('chk_', '');
+           if(document.getElementById(fid)) document.getElementById(fid).classList.toggle('open', d[key]);
+        }
+      } else {
+        el.value = d[key];
+        if (el.tagName.toLowerCase() === 'textarea') autoResize(el);
+      }
+    });
+
+    const eqVal = document.getElementById('inputEquipe').value;
+    if (eqVal) {
+      const vals = eqVal.split(', ');
+      const texts = [];
+      vals.forEach(v => {
+        const opt = document.querySelector(`#selectEquipe .select-items div[data-value="${v}"]`);
+        if (opt) { opt.classList.add('multi-selected'); texts.push(opt.textContent); }
+      });
+      document.getElementById('displayEquipe').textContent = texts.length ? texts.join(', ') : 'Selecione...';
+    }
+
+    if (document.getElementById('chkOutroGerente').checked) {
+      document.getElementById('inputEmailGerente').style.display = 'block';
+      document.getElementById('inputEmailGerente').required = true;
+    }
+  } catch(e) { console.error(e); } finally {
+    _isLoadingDraft = false;
+    calcProgress();
+  }
+}
+
+function clearDraft() { localStorage.removeItem(DRAFT_KEY); }
+
+document.getElementById('dailyForm').addEventListener('input', function(e) {
+  if (e.target.tagName.toLowerCase() === 'textarea') autoResize(e.target);
+  if (_isLoadingDraft) return;
+  setTimeout(() => { saveDraft(); calcProgress(); }, 400); 
+});
+document.getElementById('dailyForm').addEventListener('change', function(e) {
+  if (_isLoadingDraft) return;
+  if (e.target.tagName.toLowerCase() !== 'textarea' && e.target.type !== 'text') {
+    saveDraft(); calcProgress();
+  }
+});
+setTimeout(loadDraft, 100);
+
+function extractInt(val) {
+  if(!val) return '';
+  return parseInt(val, 10);
+}
+
+function getClosersFromDiag(checkId) {
+  if(!document.getElementById('chk_' + checkId).checked) return "Não";
+  const checks = document.querySelectorAll(`input[name="closers_${checkId}"]:checked`);
+  if(checks.length === 0) return "Sim (Nenhum Closer marcado)";
+  return Array.from(checks).map(c => c.value).join(', ');
+}
+
+function coletarFormulario() {
+  const d = {
+    data: document.getElementById('data').value,
+    supervisor: document.getElementById('inputSupervisor').value,
+    emailSupervisor: document.getElementById('inputEmailSupervisor').value,
+    equipe: document.getElementById('inputEquipe').value,
+    emailGerente: document.getElementById('inputEmailGerente').value,
+    
+    metaRecalcPedido: extractInt(document.getElementById('metaRecalcPedido').value),
+    metaRecalcVenda: extractInt(document.getElementById('metaRecalcVenda').value),
+    metaMesPedido: extractInt(document.getElementById('metaMesPedido').value),
+    metaMesVenda: extractInt(document.getElementById('metaMesVenda').value),
+    deficitPedido: extractInt(document.getElementById('deficitPedido').value),
+    deficitVenda: extractInt(document.getElementById('deficitVenda').value),
+    totalIndicacoes: extractInt(document.getElementById('totalIndicacoes').value),
+    ligacoesProdutivas: extractInt(document.getElementById('ligacoesProdutivas').value),
+    
+    farol: document.querySelector('input[name="farol"]:checked')?.value || '',
+    
+    diag: {}, acao: {}
+  };
+
+  DIAG_CONFIG.forEach(b => b.checks.forEach(c => {
+    d.diag[c.id] = getClosersFromDiag(c.id);
+  }));
+
+  ACOES_CONFIG.forEach(g => g.checks.forEach(c => {
+    const isChecked = document.getElementById('chk_' + c.id).checked;
+    d.acao[c.id] = {
+      ativa: isChecked,
+      detalhe: isChecked ? document.getElementById(`${c.id}_detalhe`).value : '',
+      resultado: isChecked ? document.getElementById(`${c.id}_resultado`).value : '',
+      prazo: isChecked ? document.getElementById(`${c.id}_prazo`).value : ''
+    };
+  }));
+
+  return d;
+}
+
+function dataBr(dataIso) {
+  if(!dataIso) return '--';
+  const p = dataIso.split('-');
+  return `${p[2]}/${p[1]}/${p[0]}`;
+}
+
+function buildEmailHTML(d) {
+  const farolColor = { verde:'#22c55e', amarelo:'#f59e0b', vermelho:'#ef4444' };
+  const farolLabel = { verde:'Verde - Provável', amarelo:'Amarelo - Possível com Esforço', vermelho:'Vermelho - Impossível' };
+  const fc = farolColor[d.farol] || '#6b7280';
+  const fl = farolLabel[d.farol] || 'Não informado';
+
+  let diagCardsHTML = '';
+  DIAG_CONFIG.forEach(b => {
+    let blockRows = '';
+    b.checks.forEach(c => {
+      const val = d.diag[c.id];
+      const isSim = val !== 'Não';
+      blockRows += `<tr>
+        <td width="20" style="padding:10px 0; border-bottom:1px solid #1e2e50;">
+          <div style="width:14px;height:14px;border-radius:4px;background:${isSim?'#0065FF':'#115978'};"></div>
+        </td>
+        <td style="padding:10px 0; border-bottom:1px solid #1e2e50; font-size:14px; color:${isSim?'#ffffff':'#8c9bba'}">${c.label}</td>
+        <td align="right" style="padding:10px 0; border-bottom:1px solid #1e2e50; font-size:13px; font-weight:700; color:${isSim?'#FCD02B':'#8c9bba'}">${val}</td>
+      </tr>`;
+    });
+    diagCardsHTML += `<div style="margin-bottom: 24px;">
+      <div style="font-size:13px; font-weight:700; color:#FCD02B; text-transform:uppercase; margin-bottom:12px;">${b.title}</div>
+      <table width="100%" cellpadding="0" cellspacing="0">${blockRows}</table>
+    </div>`;
+  });
+
+  let acoesCardsHTML = '';
+  let temAcoes = false;
+  ACOES_CONFIG.forEach(g => {
+    let blockRows = '';
+    g.checks.forEach(c => {
+      const ac = d.acao[c.id];
+      if(ac.ativa) {
+        temAcoes = true;
+        blockRows += `<tr>
+          <td style="padding:12px; border-bottom:1px solid #1e2e50; font-weight:600; color:#ffffff; width:35%">${c.label}</td>
+          <td style="padding:12px; border-bottom:1px solid #1e2e50; color:#e2e8f0; width:30%">${ac.detalhe||'--'}</td>
+          <td style="padding:12px; border-bottom:1px solid #1e2e50; color:#e2e8f0; width:20%">${ac.resultado||'--'}</td>
+          <td style="padding:12px; border-bottom:1px solid #1e2e50; color:#e2e8f0; white-space:nowrap; width:15%">${dataBr(ac.prazo)}</td>
+        </tr>`;
+      }
+    });
+    if(blockRows) {
+      acoesCardsHTML += `<div style="margin-bottom: 24px;">
+        <div style="font-size:13px; font-weight:700; color:#FCD02B; text-transform:uppercase; margin-bottom:12px;">${g.title}</div>
+        <table width="100%" cellpadding="0" cellspacing="0" style="border-collapse:collapse; background:rgba(0,0,0,0.2); border-radius:8px; overflow:hidden;">
+          <thead><tr>
+            <th style="text-align:left;padding:12px;font-size:11px;text-transform:uppercase;color:#8c9bba;border-bottom:1px solid #1e2e50">Ação</th>
+            <th style="text-align:left;padding:12px;font-size:11px;text-transform:uppercase;color:#8c9bba;border-bottom:1px solid #1e2e50">Detalhe</th>
+            <th style="text-align:left;padding:12px;font-size:11px;text-transform:uppercase;color:#8c9bba;border-bottom:1px solid #1e2e50">Resultado</th>
+            <th style="text-align:left;padding:12px;font-size:11px;text-transform:uppercase;color:#8c9bba;border-bottom:1px solid #1e2e50">Prazo</th>
+          </tr></thead><tbody>${blockRows}</tbody>
+        </table>
+      </div>`;
+    }
+  });
+
+  const card = (num, title, body) => `
+    <table width="100%" cellpadding="0" cellspacing="0" style="background:#0b1224; border:1px solid #1e2e50; border-radius:16px; margin-bottom:24px;">
+      <tr><td style="padding:16px 24px; background:#142141; border-bottom:1px solid #1e2e50; border-radius:16px 16px 0 0;">
+          <table width="100%" cellpadding="0" cellspacing="0"><tr>
+            <td width="36"><span style="font-size:12px;font-weight:700;background:#FCD02B;color:#142141;border-radius:6px;padding:3px 10px">${num}</span></td>
+            <td><span style="font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:#ffffff">${title}</span></td>
+          </tr></table>
+        </td></tr>
+      <tr><td style="padding:24px;">${body}</td></tr>
+    </table>`;
+
+  const kvTable = pairs => {
+    let rows = '';
+    for(let i=0; i<pairs.length; i+=2) {
+      const [l1, v1] = pairs[i];
+      const [l2, v2] = pairs[i+1] || ['',''];
+      rows += `<tr>
+        <td width="48%" style="padding:14px; background:#142141; border:1px solid #1e2e50; border-radius:10px;">
+          <div style="font-size:11px;color:#8c9bba;text-transform:uppercase;margin-bottom:6px;font-weight:600">${l1}</div>
+          <div style="font-size:16px;font-weight:700;color:#ffffff;">${v1||'--'}</div>
+        </td><td width="4%"></td>
+        ${l2 ? `<td width="48%" style="padding:14px; background:#142141; border:1px solid #1e2e50; border-radius:10px;">
+          <div style="font-size:11px;color:#8c9bba;text-transform:uppercase;margin-bottom:6px;font-weight:600">${l2}</div>
+          <div style="font-size:16px;font-weight:700;color:#ffffff;">${v2||'--'}</div>
+        </td>` : `<td></td>`}
+      </tr><tr><td height="14"></td></tr>`;
+    }
+    return `<table width="100%" cellpadding="0" cellspacing="0" border="0">${rows}</table>`;
+  };
+
+  return `<!DOCTYPE html><html><head><meta charset="UTF-8"></head>
+<body style="font-family:'Inter', Arial, sans-serif;background:#0b1224;color:#ffffff;margin:0;padding:0">
+<table width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#0b1224;"><tr><td align="center" style="padding:40px 15px;">
+  <table width="100%" style="max-width:700px;" cellpadding="0" cellspacing="0" border="0">
+    <tr><td style="padding-bottom:30px; border-bottom:1px solid #1e2e50; text-align:center;">
+      <img src="https://github.com/user-attachments/assets/41e98109-418f-40d4-9c27-75a357726e0b" alt="FINX" height="40" style="margin-bottom: 20px;">
+      <div style="font-size:12px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:#FCD02B;margin-bottom:8px">Daily Comercial</div>
+      <div style="font-size:24px;font-weight:800;color:#ffffff;margin-bottom:4px;">Framework do Supervisor</div>
+      <div style="font-size:16px;font-weight:500;color:#FCD02B;margin-bottom:12px;">SDR</div>
+      <div style="font-size:14px;color:#8c9bba;">${d.supervisor} &nbsp;·&nbsp; ${d.equipe} &nbsp;·&nbsp; ${dataBr(d.data)}</div>
+    </td></tr>
+    <tr><td height="30"></td></tr>
+    <tr><td>
+      ${card('01','Indicadores do Dia', kvTable([
+        ['Meta Recalc. (Pedido)', d.metaRecalcPedido], ['Meta Recalc. (Venda)', d.metaRecalcVenda],
+        ['Meta Mês (Pedido)', d.metaMesPedido], ['Meta Mês (Venda)', d.metaMesVenda],
+        ['Déficit (Pedido)', d.deficitPedido], ['Déficit (Venda)', d.deficitVenda],
+        ['Total Indicações', d.totalIndicacoes], ['Ligações Produtivas', d.ligacoesProdutivas]
+      ]))}
+      ${card('02','Diagnóstico (Ofensores)', diagCardsHTML)}
+      ${temAcoes ? card('03','Plano de Ação', acoesCardsHTML) : ''}
+      ${card('04','Farol de Confiança', `<div style="text-align:center">
+        <div style="display:inline-block;padding:14px 28px;border-radius:10px;font-size:16px;font-weight:800;border:2px solid ${fc};color:${fc};background:${fc}15">${fl}</div>
+      </div>`)}
+    </td></tr>
+    <tr><td align="center" style="font-size:12px;color:#4a5b7c;padding:30px 0;">
+      Framework Supervisor FINX &nbsp;·&nbsp; ${new Date().toLocaleString('pt-BR')}
+    </td></tr>
+  </table>
+</td></tr></table></body></html>`;
+}
+
+const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbzE4QW2AG5kDTaTw0zZrcMmxTqbXEbrx03sKjAkaztx0Ql7HdJMovKcnjlK4PJk1QdUEg/exec';
+const SENHA_TESTE = '7530';
+let isSubmitting = false;
+
+function showToast(msg, isWarn) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.style.background  = isWarn ? 'rgba(245,158,11,.2)' : 'rgba(34, 197, 94, 0.2)';
+  t.style.borderColor = isWarn ? '#f59e0b' : '#22c55e';
+  t.style.color       = isWarn ? '#fcd34d' : '#86efac';
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 4500);
+}
+function abrirModal(id)  { document.getElementById(id).classList.add('active'); }
+function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+
+function montarPayload(isTeste) {
+  const d = coletarFormulario();
+  const flatDiag = [];
+  DIAG_CONFIG.forEach(b => b.checks.forEach(c => flatDiag.push(d.diag[c.id])));
+  const flatAcoes = [];
+  ACOES_CONFIG.forEach(g => g.checks.forEach(c => {
+    const ac = d.acao[c.id];
+    flatAcoes.push(ac.detalhe, ac.resultado, ac.prazo);
+  }));
+
+  const sheetRow = [
+    d.data, d.supervisor, d.equipe,
+    d.metaRecalcPedido, d.metaRecalcVenda, d.metaMesPedido, d.metaMesVenda,
+    d.deficitPedido, d.deficitVenda, d.totalIndicacoes, d.ligacoesProdutivas,
+    ...flatDiag,
+    ...flatAcoes,
+    d.farol
+  ];
+
+  return {
+    sheetRow,
+    emailHTML: buildEmailHTML(d),
+    emailSupervisor: d.emailSupervisor,
+    emailGerente: d.emailGerente,
+    supervisor: d.supervisor,
+    data: dataBr(d.data),
+    isTeste: isTeste
+  };
+}
+
+async function enviar(payload, isTeste) {
+  const overlay = document.getElementById('loadingOverlay');
+  document.getElementById('loadingText').textContent = isTeste ? 'Enviando teste...' : 'Enviando Daily...';
+  overlay.classList.add('active');
+  document.querySelectorAll('button').forEach(b => b.disabled = true);
+
+  try {
+    let responseData = null;
+    try {
+      const resp = await fetch(BACKEND_URL, { method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload) });
+      const text = await resp.text();
+      try { responseData = JSON.parse(text); } catch(_) {}
+    } catch (_) {
+      await fetch(BACKEND_URL, { method:'POST', mode:'no-cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload) });
+    }
+
+    await new Promise(r => setTimeout(r, 2200));
+
+    if (responseData && responseData.codigo === 'duplicado') {
+      overlay.classList.remove('active');
+      document.querySelectorAll('button').forEach(b => b.disabled = false);
+      document.getElementById('modalDuplicadoTitulo').textContent = (payload.supervisor || '').split(' ')[0] + ', você já enviou um Daily hoje.';
+      document.getElementById('btnConfirmarDuplicado').onclick = async () => {
+        fecharModal('modalDuplicado');
+        await enviar({ ...payload, forcarEnvio: true }, isTeste);
+      };
+      abrirModal('modalDuplicado');
+      return;
+    }
+
+    if (!isTeste) clearDraft();
+    showToast(isTeste ? '✅ Teste enviado!' : '✅ Daily enviado com sucesso!', false);
+    resetForm(true);
+
+  } catch(err) {
+    console.error(err);
+    showToast('❌ Erro ao enviar. Verifique a conexão.', true);
+  } finally {
+    overlay.classList.remove('active');
+    document.querySelectorAll('button').forEach(b => b.disabled = false);
+    isSubmitting = false;
+  }
+}
+
+document.getElementById('btnPrepararEnvio').addEventListener('click', () => {
+  if (!document.getElementById('data').value || !document.getElementById('inputSupervisor').value || !document.getElementById('inputEquipe').value) {
+    showToast('⚠️ Preencha os campos de identificação (Data, Supervisor e Equipe) antes de enviar.', true);
+    return;
+  }
+  abrirModal('modalConfirmarEnvio');
+});
+
+document.getElementById('btnVoltarEnvio').addEventListener('click', () => {
+  fecharModal('modalConfirmarEnvio');
+});
+
+document.getElementById('btnConfirmarEnvioReal').addEventListener('click', async () => {
+  fecharModal('modalConfirmarEnvio');
+  if (isSubmitting) return;
+  isSubmitting = true;
+  const payload = montarPayload(false);
+  const chaveDup = 'daily_enviado_' + payload.supervisor + '_' + payload.data;
+  
+  if (localStorage.getItem(chaveDup)) {
+    isSubmitting = false;
+    document.getElementById('modalDuplicadoTitulo').textContent = (payload.supervisor || '').split(' ')[0] + ', você já enviou um Daily hoje.';
+    document.getElementById('btnConfirmarDuplicado').onclick = async () => {
+      fecharModal('modalDuplicado');
+      isSubmitting = true;
+      await enviar({ ...payload, forcarEnvio: true }, false);
+      localStorage.setItem(chaveDup, Date.now());
+    };
+    abrirModal('modalDuplicado');
+    return;
+  }
+
+  await enviar(payload, false);
+  localStorage.setItem(chaveDup, Date.now());
+});
+
+function abrirModalTeste() {
+  if (isSubmitting) return;
+  document.getElementById('inputSenhaTeste').value = '';
+  document.getElementById('erroSenhaTeste').textContent = '';
+  document.getElementById('inputSenhaTeste').classList.remove('error');
+  abrirModal('modalTeste');
+  setTimeout(() => document.getElementById('inputSenhaTeste').focus(), 150);
+}
+
+document.getElementById('btnCancelarTeste').addEventListener('click', () => {
+  fecharModal('modalTeste');
+});
+
+document.getElementById('btnConfirmarTeste').addEventListener('click', async () => {
+  const senha = document.getElementById('inputSenhaTeste').value;
+  const erroEl = document.getElementById('erroSenhaTeste');
+  const inputEl = document.getElementById('inputSenhaTeste');
+
+  if (senha !== SENHA_TESTE) {
+    erroEl.textContent = 'Senha incorreta. Tente novamente.';
+    inputEl.classList.add('error');
+    inputEl.value = '';
+    setTimeout(() => {
+      inputEl.classList.remove('error');
+      inputEl.focus();
+    }, 600);
+    return;
+  }
+
+  fecharModal('modalTeste');
+  if (isSubmitting) return;
+  isSubmitting = true;
+  await enviar(montarPayload(true), true);
+});
+
+document.getElementById('inputSenhaTeste').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter') document.getElementById('btnConfirmarTeste').click();
+});
+
+document.querySelectorAll('.modal-backdrop').forEach(modal => {
+  modal.addEventListener('click', function(e) {
+    if (e.target === this && !isSubmitting) fecharModal(this.id);
+  });
+});
+
+document.getElementById('btnCancelarDuplicado').addEventListener('click', () => {
+  fecharModal('modalDuplicado');
+  isSubmitting = false;
+});
+
+function resetForm(force) {
+  if (force === true || confirm('Limpar todos os campos? O rascunho também será apagado.')) {
+    document.getElementById('dailyForm').reset();
+    document.getElementById('displaySupervisor').textContent = 'Selecione...';
+    document.getElementById('inputSupervisor').value = '';
+    document.getElementById('inputEmailSupervisor').value = '';
+    document.getElementById('displayEquipe').textContent = 'Selecione...';
+    document.getElementById('inputEquipe').value = '';
+    document.querySelectorAll('#selectEquipe .select-items div').forEach(d => d.classList.remove('multi-selected'));
+    document.getElementById('inputEmailGerente').style.display = 'none';
+    
+    document.querySelectorAll('.gaveta').forEach(g => g.classList.remove('open'));
+    document.querySelectorAll('.acao-fields').forEach(f => f.classList.remove('open'));
+    
+    atualizarListasClosers(); 
+    
+    clearDraft(); 
+    calcProgress();
+  }
+}
+
+window.addEventListener('beforeunload', function (e) {
+  if (localStorage.getItem(DRAFT_KEY) || isSubmitting) {
+    e.preventDefault(); e.returnValue = '';
+  }
+});
+</script>
+</body>
+</html>
