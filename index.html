@@ -445,27 +445,26 @@ const CLOSERS = {
 };
 
 const DIAG_CONFIG = [
-  { id: 'ativ', title: 'Atividade / Esforço', desc: 'A pessoa está fazendo o trabalho necessário, em quantidade suficiente, com intensidade adequada?', checks: [
-    { id: 'diag_ativ_cob', label: 'Cobertura das oportunidades', desc: 'O vendedor está realmente trabalhando a carteira que recebe?' },
-    { id: 'diag_ativ_int', label: 'Intensidade de contato', desc: 'O vendedor está gerando o número de tentativas que o funil exige?' },
-    { id: 'diag_ativ_per', label: 'Persistência comercial', desc: 'A venda está sendo abandonada cedo demais?' },
+  { id: 'ativ', title: 'Quantitativo (Atividade / Esforço)', desc: 'A pessoa está fazendo o trabalho necessário, em quantidade suficiente, com intensidade adequada?', checks: [
+    { id: 'diag_ativ_cob', label: 'Contactou todos os leads', desc: 'O vendedor está realmente trabalhando a carteira que recebe?' },
+    { id: 'diag_ativ_int', label: 'Quantidade de contatos', desc: 'O vendedor está gerando o número de tentativas que o funil exige?' },
+    { id: 'diag_ativ_per', label: 'Seguiu a cadência de follow-up', desc: 'A venda está sendo abandonada cedo demais?' },
     { id: 'diag_ativ_vel', label: 'Velocidade e prontidão', desc: 'O vendedor ataca a oportunidade enquanto ela está quente?' }
   ]},
-  { id: 'conv', title: 'Conversão / Efetividade', desc: 'O esforço está gerando avanço real ou apenas movimento vazio?', checks: [
+  { id: 'conv', title: 'Qualitativo (Conversão / Efetividade)', desc: 'O esforço está gerando avanço real ou apenas movimento vazio?', checks: [
     { id: 'diag_conv_cap', label: 'Capacidade de capturar o cliente', desc: 'A tentativa de contato vira conversa real?' },
-    { id: 'diag_conv_ent', label: 'Entrada da conversa', desc: 'O vendedor gera confiança ou parece um robô lendo script?' },
-    { id: 'diag_conv_dia', label: 'Capacidade de entender o cliente', desc: 'O vendedor faz diagnóstico ou apenas empurra produto?' },
-    { id: 'diag_conv_enf', label: 'Capacidade de enfrentar resistência', desc: 'O vendedor recua no primeiro "não" ou sabe contornar?' },
-    { id: 'diag_conv_and', label: 'Capacidade de fazer a venda andar', desc: 'O vendedor tem comando sobre o processo ou é refém do cliente?' },
-    { id: 'diag_conv_tra', label: 'Transformação de esforço em venda', desc: 'O vendedor consegue transformar uma boa conversa em dinheiro na mesa?' }
+    { id: 'diag_conv_ent', label: 'Abordagem', desc: 'O vendedor gera confiança ou parece um robô lendo script?' },
+    { id: 'diag_conv_dia', label: 'Sondagem', desc: 'O vendedor faz diagnóstico ou apenas empurra produto?' },
+    { id: 'diag_conv_enf', label: 'Argumentação', desc: 'O vendedor recua no primeiro "não" ou sabe contornar?' },
+    { id: 'diag_conv_and', label: 'Condição da venda', desc: 'O vendedor tem comando sobre o processo ou é refém do cliente?' }
   ]},
-  { id: 'proc', title: 'Processo / Disciplina', desc: 'O vendedor faz o básico bem feito e mantém a operação organizada?', checks: [
-    { id: 'diag_proc_gov', label: 'Governança operacional', desc: 'O CRM reflete a realidade ou é cemitério de dados?' },
-    { id: 'diag_proc_cla', label: 'Clareza da carteira', desc: 'O vendedor sabe exatamente onde está cada negócio?' },
-    { id: 'diag_proc_con', label: 'Consistência operacional', desc: 'O vendedor tem uma rotina de sucesso ou trabalha por espasmos?' },
-    { id: 'diag_proc_res', label: 'Respeito ao modelo de operação', desc: 'O vendedor joga o jogo do time ou inventa as próprias regras?' }
+  { id: 'proc', title: 'Processo', desc: 'O vendedor faz o básico bem feito e mantém a operação organizada?', checks: [
+    { id: 'diag_proc_gov', label: 'Preenchimento do CRM', desc: 'O CRM reflete a realidade ou é cemitério de dados?' },
+    { id: 'diag_proc_cla', label: 'Classificação do lead', desc: 'O vendedor sabe exatamente onde está cada negócio?' },
+    { id: 'diag_proc_con', label: 'Rotina organizacional', desc: 'O vendedor tem uma rotina de sucesso ou trabalha por espasmos?' },
+    { id: 'diag_proc_res', label: 'Playbook', desc: 'O vendedor joga o jogo do time ou inventa as próprias regras?' }
   ]},
-  { id: 'comp', title: 'Comportamento / Mentalidade', desc: 'A postura da pessoa sustenta a performance ou sabota o ambiente?', checks: [
+  { id: 'comp', title: 'Comportamental', desc: 'A postura da pessoa sustenta a performance ou sabota o ambiente?', checks: [
     { id: 'diag_comp_mot', label: 'Motor interno (energia)', desc: 'O vendedor tem "fome" ou está apenas cumprindo a tabela?' },
     { id: 'diag_comp_niv', label: 'Nível de responsabilidade (ownership)', desc: 'O vendedor assume a culpa ou terceiriza o fracasso?' },
     { id: 'diag_comp_tre', label: 'Capacidade de ser treinado', desc: 'O vendedor aceita correção ou sempre tem uma desculpa pronta?' },
@@ -474,21 +473,21 @@ const DIAG_CONFIG = [
 ];
 
 const ACOES_CONFIG = [
-  { id: 'ativ', title: 'Atividade / Esforço', checks: [
+  { id: 'ativ', title: 'Quantitativo (Atividade / Esforço)', checks: [
     { id: 'acao_ativ_met', label: 'Estabelecer meta mínima diária inegociável' },
     { id: 'acao_ativ_tra', label: 'Tracking de hora em hora' }
   ]},
-  { id: 'conv', title: 'Conversão / Efetividade', checks: [
+  { id: 'conv', title: 'Qualitativo (Conversão / Efetividade)', checks: [
     { id: 'acao_conv_rol', label: 'Roleplay intensivo' },
     { id: 'acao_conv_ouv', label: 'Ouvir ligações juntos' },
     { id: 'acao_conv_ree', label: 'Reescrever script de abordagem' }
   ]},
-  { id: 'proc', title: 'Processo / Disciplina', checks: [
+  { id: 'proc', title: 'Processo', checks: [
     { id: 'acao_proc_che', label: 'Checklist obrigatório diário' },
     { id: 'acao_proc_rot', label: 'Rotina supervisionada de perto' },
     { id: 'acao_proc_rev', label: 'Revisão de pipeline 1:1 semanal' }
   ]},
-  { id: 'comp', title: 'Comportamento / Mentalidade', checks: [
+  { id: 'comp', title: 'Comportamental', checks: [
     { id: 'acao_comp_fee', label: 'Feedback duro e direto (1:1)' },
     { id: 'acao_comp_pip', label: 'Plano de recuperação comportamental (PIP)' },
     { id: 'acao_comp_pre', label: 'Preparação para desligamento se não houver mudança' }
